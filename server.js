@@ -15,6 +15,69 @@ app.use(bodyParser.json());
 
 // Your API will be built out here.
 
+app.get('/users', (req, res) => {
+  Person.find({}, (err, people) => {
+    if (err) {
+      res.status(STATUS_SERVER_ERROR);
+      res.json({ error: err });
+    } else {
+      res.json(people);
+    }
+  });
+});
+
+app.get('/users/:direction', (req, res) => {
+  const { direction } = req.params;
+  let order = -1;
+  console.log("Direction to sort by: ", direction);
+  // if (direction !== asc || direction !== 'desc') {
+  //   res.status(STATUS_USER_ERROR);
+  //   res.json({ error: 'Please submit asc or desc' });
+  // } else if (direction === 'asc') {
+  if (direction === 'asc') {
+    order = 1;
+  }
+  Person.find({})
+    .sort( {firstName: order} )
+    .exec((err, people) => {
+      if (err) {
+        res.status(STATUS_SERVER_ERROR);
+        res.json({ error: err });
+      } else {
+        res.json(people);
+      }
+  });
+});
+
+// app.get('/user-get-friends/:id', (req, res) => {
+//   const { id } = req.params;
+//   Person.findById(id, (err, person) => {
+//     if (err) {
+//       res.status(STATUS_SERVER_ERROR);
+//       res.json(err);
+//     } else if (user === null) {
+//       res.json({ error: 'Person not found' });
+//     } else {
+//       res.send(person.friends);
+//     }
+//   });
+// });
+app.get('/user-get-friends/:id', (req, res) => {
+  const { id } = req.params;
+  Person.find({})
+    .where('_id')
+    .equals(id)
+    .exec((err, person) => {
+      if (err) {
+        res.status(STATUS_SERVER_ERROR);
+        res.json({ error: err });
+      } else {
+//         res.send(person.friends);
+	res.json({ "friends": person.friends });
+      }
+    });
+});
+
 
 mongoose.Promise = global.Promise;
 const connect = mongoose.connect(
